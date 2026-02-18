@@ -176,8 +176,9 @@ Please provide a helpful answer with proper citations."""
                     {"role": "system", "content": "You are a helpful assistant for company policy questions."},
                     {"role": "user", "content": prompt}
                 ],
-                "max_tokens": 500,
-                "temperature": 0.1
+                "max_tokens": 400,  # Reduced from 500 for faster responses
+                "temperature": 0.1,  # Low temperature for consistent, factual responses
+                "top_p": 0.9  # Nucleus sampling for better quality
             }
             
             # Call OpenRouter API
