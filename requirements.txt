@@ -1,7 +1,7 @@
 # Core dependencies
 flask==3.0.0
 chromadb>=0.4.22  # Flexible version for compatibility
-sentence-transformers==2.2.2
+sentence-transformers>=2.2.2  # Flexible version for compatibility
 requests==2.31.0
 python-dotenv==1.0.1
 
