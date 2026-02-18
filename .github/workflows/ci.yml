@@ -72,6 +72,7 @@ jobs:
         run: |
           python -c "import src.ingest; print('✓ Ingest module imported')"
           python -c "import src.rag; print('✓ RAG module imported')"
+          python -c "import src.evaluate; print('✓ Evaluate module imported')"
           python -c "import app; print('✓ Flask app imported')"
 
       - name: Verify policy documents exist
