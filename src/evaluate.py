@@ -15,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sentence_transformers import SentenceTransformer, util
 from dotenv import load_dotenv
 
 from rag import RAGSystem
@@ -243,39 +244,40 @@ class RAGEvaluator:
         return grounded_count / total_topics if total_topics > 0 else 0.0
     
     def _evaluate_citation_accuracy(self, response: Dict[str, Any], query_data: Dict[str, Any]) -> float:
-        """Evaluate citation accuracy and relevance.
+        """Evaluate citation accuracy using semantic similarity.
         
-        Improved scoring: Filters out stop words and uses a lower threshold (20%)
-        to better reflect real-world citation relevance.
+        Improved approach:
+        - Uses semantic similarity instead of keyword overlap
+        - Recognizes synonyms and paraphrasing
+        - More realistic for real-world citation relevance
+        - Threshold of 0.5 (50% semantic similarity)
         """
         citations = response['citations']
         
         if not citations:
             return 0.0
         
-        # Stop words to filter out
-        stop_words = {'the', 'is', 'are', 'what', 'how', 'do', 'does', 'can', 'i', 'my', 'for', 'to', 'a', 'an', 'of', 'in', 'on', 'at'}
+        # # Stop words to filter out
+        # stop_words = {'the', 'is', 'are', 'what', 'how', 'do', 'does', 'can', 'i', 'my', 'for', 'to', 'a', 'an', 'of', 'in', 'on', 'at'}
+
+        # Encode the query once
+        query_embedding = self.embedder.encode(query_data['query'])
         
         accurate_citations = 0
         
         for citation in citations:
-            # Check if citation is relevant to the query category
-            citation_text = citation['snippet'].lower()
-            query_lower = query_data['query'].lower()
+            # Encode the citation snippet
+            citation_embedding = self.embedder.encode(citation['snippet'])
             
-            # Filter out stop words for better matching
-            query_words = set(word for word in query_lower.split() if word not in stop_words)
-            citation_words = set(word for word in citation_text.split() if word not in stop_words)
+            # Calculate semantic similarity
+            similarity = util.pytorch_cos_sim(query_embedding, citation_embedding)[0][0]
             
-            # Calculate word overlap
-            overlap = len(query_words.intersection(citation_words))
-            relevance_score = overlap / len(query_words) if query_words else 0
-            
-            # Lower threshold (20%) is more realistic for citation relevance
-            if relevance_score > 0.2:
+            # Use 0.5 threshold (50% semantic similarity)
+            # This is more lenient than keyword matching but still meaningful
+            if similarity > 0.5:
                 accurate_citations += 1
         
-        return accurate_citations / len(citations)
+        return accurate_citations / len(citations) if citations else 0.0
     
     def _calculate_summary_metrics(self, results: List[Dict[str, Any]], latencies: List[float]) -> Dict[str, Any]:
         """Calculate summary evaluation metrics."""
