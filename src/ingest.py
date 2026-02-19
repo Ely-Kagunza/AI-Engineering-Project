@@ -125,9 +125,16 @@ class DocumentProcessor:
 class TextChunker:
     """Handles text chunking with overlap."""
     
-    def __init__(self, chunk_size: int = 1000, overlap: int = 200):
+    def __init__(self, chunk_size: int = 800, overlap: int = 150):
+        """Initialize chunker with optimized parameters for better retrieval.
+
+        Args:
+            chunk_size: Target size for chunks (reduced from 1000 to 800 for more focused chunks)
+            overlap: Overlap between chunks (reduced from 200 to 150 for efficiency)
+        """
         self.chunk_size = chunk_size
         self.overlap = overlap
+
     
     def chunk_document(self, document: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Split document into overlapping chunks."""
