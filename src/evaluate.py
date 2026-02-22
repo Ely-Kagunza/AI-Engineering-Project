@@ -34,6 +34,7 @@ class RAGEvaluator:
     def __init__(self, rag_system: RAGSystem):
         self.rag_system = rag_system
         self.evaluation_queries = self._load_evaluation_queries()
+        self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
     
     def _load_evaluation_queries(self) -> List[Dict[str, Any]]:
         """Load evaluation queries with expected topics."""
